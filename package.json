@@ -1,0 +1,22 @@
+{
+  "name": "excalidraw-mcp",
+  "version": "1.1.0",
+  "description": "Excalidraw MCP Server for AI coding harnesses (Excalidraw v2 spec compliant)",
+  "type": "module",
+  "bin": {
+    "excalidraw-mcp": "./src/cli.js"
+  },
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node src/test.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "winston": "^3.17.0",
+    "zod": "^3.24.2",
+    "zod-to-json-schema": "^3.24.3"
+  }
+}
