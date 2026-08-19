@@ -1,33 +1,75 @@
 # Excalidraw MCP Server (Excalidraw v2 Spec Compliant)
 
-An MCP (Model Context Protocol) Server for creating and managing Excalidraw diagrams, upgraded to follow the official Excalidraw v2 specification (2025/2026).
+An MCP (Model Context Protocol) Server for creating and managing Excalidraw diagrams, upgraded to follow the official Excalidraw v2 specification.
 
-## Key Fixes & Improvements over Legacy excalidraw-mcp
+## Features
 
-1. **Compliant Element Schemas**:
-   - `fontFamily`: Normalized to integer enum (`1` Virgil, `2` Helvetica, `3` Cascadia, `5` Excalifont). Accepts string names and auto-converts.
-   - `text`: Auto-populates `originalText`, `lineHeight: 1.25`, `textAlign`, `verticalAlign`, estimated `width` and `height`.
-   - `arrow` / `line`: Converts point definitions to relative vector arrays `[[0, 0], [dx, dy]]` with `endArrowhead: "arrow"`.
-   - `strokeColor` / `backgroundColor`: Properly mapped for all element types.
-2. **File Export & Import Tools**:
-   - `export_file`: Writes a 100% valid `.excalidraw` file with top-level `type`, `version: 2`, `source`, `elements`, `appState`, `files: {}`.
-   - `import_file`: Loads any `.excalidraw` scene from disk into server memory.
-   - `get_scene_json`: Returns complete scene JSON string.
-   - `clear_canvas`: Resets canvas in memory.
-   - `create_elements_batch`: Create multiple elements in one call.
+### Core Element Tools
+| Tool | Description |
+|------|-------------|
+| `create_element` | Create a single Excalidraw element |
+| `create_elements_batch` | Create multiple elements in one call |
+| `query_elements` | Query elements by type or custom filters |
+| `delete_element` | Delete an element by ID |
+| `clear_canvas` | Clear all elements from canvas |
 
-## Global Setup in Oh My Pi (OMP)
+### File Operations
+| Tool | Description |
+|------|-------------|
+| `export_file` | Export canvas to `.excalidraw` file |
+| `import_file` | Import `.excalidraw` file into canvas |
+| `get_scene_json` | Get full scene JSON |
 
-Configured in `~/.omp/agent/mcp.json`:
+### Library Items (Official Excalidraw Icon Packs)
+| Tool | Description |
+|------|-------------|
+| `list_library_items` | Search or list items across all installed libraries (`query`, `library`, `limit`) |
+| `insert_library_item` | Insert icon at position with optional scale (`itemId`, `x`, `y`, `scale`, `library`) |
+
+**Installed Official Libraries (499+ icons):**
+1. **AWS Architecture Icons** (`aws-architecture-icons`): 249 icons (CloudSearch, EMR, DynamoDB, S3, EC2, Lambda, VPC, RDS, Kinesis, etc.)
+2. **Google Icons** (`google-icons`): 139 icons (Anthos, BigQuery, Compute Engine, Cloud Run, GKE, Firestore, etc.)
+3. **System Design Components** (`system-design-components`): 24 items (Application server, Multi-instance server, Load Balancer, etc.)
+4. **Shapes for UML & ER Diagrams** (`uml-er-diagrams`): 21 items (Entities, Relations, Connectors, Shapes)
+5. **Software Logos** (`software-logos`): 18 icons (Docker, JSON, Git, Database logos, etc.)
+6. **Architecture Diagram Components** (`architecture-diagram-components`): 11 components (Slack, Docker, GitHub, VPC, Subnets)
+7. **Software Architecture** (`software-architecture`): 7 core diagram elements
+8. **Robots** (`robots`): 7 illustrated robot figures
+9. **Built-in Common Icons** (`built-in`): 23 lightweight native icons
+
+### Auto-Layout Flowchart
+| Tool | Description |
+|------|-------------|
+| `create_flowchart` | Create flowchart with DagreJS auto-layout |
+
+**Supported layouts:** Top-Bottom (TB), Left-Right (LR), Bottom-Top (BT), Right-Left (RL)
+**Node shapes:** Rectangle, Ellipse, Diamond
+
+## Quick Examples
+
+```javascript
+// Insert AWS EC2 icon
+insert_library_item({ itemId: "aws-ec2", x: 100, y: 200, scale: 1.5 })
+
+// Create flowchart
+create_flowchart({ 
+  graphSpec: "Client --> Gateway --> API --> Database",
+  rankdir: "LR",
+  strokeColor: "#4A90D9"
+})
+```
+
+## Setup
+
+Add to your MCP settings file (e.g., `claude_desktop_config.json`, `.cursor/mcp.json`, or `~/.omp/agent/mcp.json`):
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/coding-agent/src/config/mcp-schema.json",
   "mcpServers": {
     "excalidraw": {
       "type": "stdio",
       "command": "node",
-      "args": ["/Users/chithien/code/excalidraw-mcp/src/cli.js"]
+      "args": ["/path/to/excalidraw-mcp/src/cli.js"]
     }
   }
 }
