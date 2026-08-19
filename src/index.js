@@ -85,6 +85,32 @@ const QuerySchema = z.object({
   filter: z.record(z.any()).optional()
 });
 
+const UpdateElementSchema = z.object({
+  id: z.string(),
+  type: z.string().optional(),
+  x: z.number().optional(),
+  y: z.number().optional(),
+  width: z.number().optional(),
+  height: z.number().optional(),
+  points: z.any().optional(),
+  backgroundColor: z.string().optional(),
+  strokeColor: z.string().optional(),
+  color: z.string().optional(),
+  strokeWidth: z.number().optional(),
+  strokeStyle: z.string().optional(),
+  fillStyle: z.string().optional(),
+  roughness: z.number().optional(),
+  opacity: z.number().optional(),
+  text: z.string().optional(),
+  fontSize: z.number().optional(),
+  fontFamily: z.union([z.number(), z.string()]).optional(),
+  textAlign: z.string().optional(),
+  verticalAlign: z.string().optional(),
+  lineHeight: z.number().optional(),
+  roundness: z.any().optional(),
+  endArrowhead: z.string().nullable().optional()
+});
+
 // Create MCP Server
 const server = new Server(
   {
@@ -190,6 +216,37 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           type: 'object',
           properties: {
             id: { type: 'string' }
+          },
+          required: ['id']
+        }
+      },
+      {
+        name: 'update_element',
+        description: 'Update an existing element by ID. Only provided fields will be updated.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', description: 'ID of the element to update (required)' },
+            type: { type: 'string', enum: ['rectangle', 'ellipse', 'diamond', 'arrow', 'text', 'line', 'freedraw', 'image', 'frame'] },
+            x: { type: 'number' },
+            y: { type: 'number' },
+            width: { type: 'number' },
+            height: { type: 'number' },
+            points: { type: 'array', description: 'Array of points [[0,0], [dx,dy]] for arrows and lines' },
+            backgroundColor: { type: 'string' },
+            strokeColor: { type: 'string' },
+            color: { type: 'string', description: 'Alias for strokeColor in text elements' },
+            strokeWidth: { type: 'number' },
+            strokeStyle: { type: 'string', enum: ['solid', 'dashed', 'dotted'] },
+            fillStyle: { type: 'string', enum: ['solid', 'hachure', 'cross-hatch'] },
+            roughness: { type: 'number' },
+            opacity: { type: 'number' },
+            text: { type: 'string' },
+            fontSize: { type: 'number' },
+            fontFamily: { type: 'number', description: '1 (Virgil), 2 (Helvetica), 3 (Cascadia), 5 (Excalifont)' },
+            textAlign: { type: 'string', enum: ['left', 'center', 'right'] },
+            verticalAlign: { type: 'string', enum: ['top', 'middle', 'bottom'] },
+            endArrowhead: { type: 'string', nullable: true }
           },
           required: ['id']
         }
@@ -336,6 +393,38 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         const exists = elements.delete(id);
         return {
           content: [{ type: 'text', text: JSON.stringify({ id, deleted: exists }) }]
+        };
+      }
+
+      case 'update_element': {
+        const params = UpdateElementSchema.parse(args);
+        const { id, ...updates } = params;
+
+        if (!elements.has(id)) {
+          throw new Error(`Element not found: ${id}`);
+        }
+
+        const existing = elements.get(id);
+
+        // Merge updates with existing element
+        const updated = { ...existing };
+
+        // Handle text color alias
+        if ('color' in updates && updates.color !== undefined) {
+          updated.strokeColor = updates.color;
+          updated.color = updates.color;
+        }
+
+        // Apply all provided updates
+        for (const [key, value] of Object.entries(updates)) {
+          if (key !== 'id') {
+            updated[key] = value;
+          }
+        }
+
+        elements.set(id, updated);
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ id, updated: true, element: updated }) }]
         };
       }
 

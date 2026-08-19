@@ -6,19 +6,13 @@
 
 ## 🧭 1. Workflow Chuẩn Khi Vẽ Diagram
 
-Mỗi khi người dùng yêu cầu vẽ diagram, Agent nên tuân theo quy trình 4 bước:
+Mỗi khi người dùng yêu cầu vẽ diagram, Agent nên tuân theo quy trình 5 bước:
 
-```
-[Hiểu yêu cầu kiến trúc] 
-        ↓
-[Bước 1: Tìm kiếm Icon cần dùng] ──> list_library_items({ query: "..." })
-        ↓
-[Bước 2: Xây khung / Auto-layout] ──> create_flowchart(...) hoặc tự tính toạ độ
-        ↓
-[Bước 3: Chèn Icon & Polish chi tiết] ──> insert_library_item(...) + create_elements_batch(...)
-        ↓
-[Bước 4: Xuất file] ──> export_file({ filePath: "docs/architecture.excalidraw" })
-```
+1. **Tìm Icon**: `list_library_items({ query: "..." })`
+2. **Xây khung**: `create_flowchart(...)` hoặc tự tính toạ độ
+3. **Chèn Icon & Polish**: `insert_library_item(...)` + `create_elements_batch(...)`
+4. **Sửa chi tiết (nếu cần)**: `update_element({ id, ...fields })` + `query_elements({ filter: ... })`
+5. **Xuất file**: `export_file({ filePath: "docs/architecture.excalidraw" })`
 
 ---
 
@@ -116,7 +110,26 @@ Dùng khi muốn vẽ box bao ngoài (Subnet, VPC, Boundary) hoặc mũi tên k�
 }
 ```
 
-### E. Xuất File (`export_file`)
+### E. Sửa & Truy Vấn Element (`update_element`, `query_elements`)
+Sau khi tạo diagram, dùng `update_element` để sửa từng element theo ID, hoặc `query_elements` để tìm element:
+
+```json
+// Tìm element theo filter
+query_elements({ filter: { type: "rectangle" } })
+
+// Sửa element: đổi màu, text, kích thước, vị trí...
+update_element({
+  "id": "mybox1",
+  "strokeColor": "#099268",
+  "backgroundColor": "#e6fcf5",
+  "text": "Updated!",
+  "width": 200
+})
+```
+
+**Các field có thể update:** `type`, `x`, `y`, `width`, `height`, `strokeColor`, `backgroundColor`, `text`, `fontSize`, `fontFamily`, `strokeStyle`, `fillStyle`, `roughness`, `opacity`, `textAlign`, v.v.
+
+### F. Xuất File (`export_file`)
 Luôn kết thúc bằng việc export ra file `.excalidraw` theo yêu cầu của user hoặc đường dẫn mặc định:
 ```json
 {

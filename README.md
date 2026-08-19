@@ -9,8 +9,9 @@ An MCP (Model Context Protocol) Server for creating and managing Excalidraw diag
 |------|-------------|
 | `create_element` | Create a single Excalidraw element |
 | `create_elements_batch` | Create multiple elements in one call |
-| `query_elements` | Query elements by type or custom filters |
+| `update_element` | Update an existing element by ID |
 | `delete_element` | Delete an element by ID |
+| `query_elements` | Query elements by type or custom filters |
 | `clear_canvas` | Clear all elements from canvas |
 
 ### File Operations
@@ -45,18 +46,15 @@ An MCP (Model Context Protocol) Server for creating and managing Excalidraw diag
 **Supported layouts:** Top-Bottom (TB), Left-Right (LR), Bottom-Top (BT), Right-Left (RL)
 **Node shapes:** Rectangle, Ellipse, Diamond
 
-## Quick Examples
-
 ```javascript
-// Insert AWS EC2 icon
-insert_library_item({ itemId: "aws-ec2", x: 100, y: 200, scale: 1.5 })
+// Update an existing element
+update_element({ id: "mybox1", strokeColor: "#099268", text: "Updated!", width: 200 })
 
-// Create flowchart
-create_flowchart({ 
-  graphSpec: "Client --> Gateway --> API --> Database",
-  rankdir: "LR",
-  strokeColor: "#4A90D9"
-})
+// Query elements by filter
+query_elements({ filter: { type: "rectangle" } })
+
+// Export to file
+export_file({ filePath: "docs/architecture.excalidraw" })
 ```
 
 ## Setup
